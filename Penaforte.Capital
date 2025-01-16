@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proposta Penaforte</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <style>
+        /* Estilo Global */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1f1c2c, #928DAB);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Cabeçalho */
+        .header {
+            background-color: rgba(0, 51, 102, 0.9);
+            color: #fff;
+            padding: 60px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 22px;
+            margin-top: 0;
+        }
+
+        /* Container Principal */
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 40px 50px;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 12px 60px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            margin-bottom: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Título da Seção */
+        h2 {
+            font-size: 32px;
+            color: #FFD700;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Caixas de Informação */
+        .info-box {
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .info-box label {
+            font-size: 18px;
+            color: #ddd;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .info-box input[type="text"],
+        .info-box input[type="range"] {
+            width: 100%;
+            padding: 18px;
+            border-radius: 12px;
+            border: none;
+            font-size: 18px;
+            background-color: #333;
+            color: #fff;
+        }
+
+        /* Percentual Centralizado */
+        .info-box output {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            display: block;
+            margin-top: 15px;
+            color: #FFD700;
+        }
+
+        .highlight {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        /* Estilização do gráfico */
+        #grafico {
+            max-width: 600px;
+            margin: 30px auto;
+            border-radius: 10px;
+            box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+        }
+
+        /* Explicação das cores do gráfico */
+        .color-legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .color-legend div {
+            display: flex;
+            align-items: center;
+            margin: 0 15px;
+        }
+
+        .color-legend span {
+            margin-left: 10px;
+        }
+
+        /* Estilos para a tabela de resultados */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .result-table th {
+            background-color: #1f1c2c;
+            color: #FFD700;
+            font-size: 18px;
+        }
+
+        .result-table td {
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #444;
+        }
+
+        .result-table tr:hover {
+            background-color: #555;
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Proposta Penaforte</h1>
+        <p>Apresentação de Cálculo - Penaforte Capital</p>
+    </div>
+
+    <div class="container">
+        <h2>Configuração dos Valores</h2>
+        <div class="info-box">
+            <label for="valorCreditoAtualizado">Principal Atualizado (R$):</label>
+            <input type="text" id="valorCreditoAtualizado" placeholder="Digite o valor em formato 1.000,00">
+        </div>
+        <div class="info-box">
+            <label for="percentualDesagioCredito">% Deságio da Proposta:</label>
+            <input type="range" id="percentualDesagioCredito" min="0" max="100" value="10" step="1" oninput="atualizarDesagioCredito()">
+            <output id="valorDesagioCredito">10%</output>
+        </div>
+        <div class="info-box">
+            <label for="valorProcesso">Valor da Proposta Completa:</label>
+            <input type="text" id="valorProcesso" placeholder="R$ 0,00" readonly>
+        </div>
+        <div class="info-box">
+            <label for="percentualHonorariosSucumbenciais">Porcentagem dos Honorários Sucumbenciais (%):</label>
+            <input type="range" id="percentualHonorariosSucumbenciais" min="0" max="100" value="10" step="1" oninput="atualizarHonorariosSucumbenciais()">
+            <output id="valorHonorariosSucumbenciais">10%</output>
+        </div>
+        <div class="info-box">
+            <label for="valorSucumbenciaisCalculado">Valor dos Honorários Sucumbenciais (R$):</label>
+            <input type="text" id="valorSucumbenciaisCalculado" placeholder="R$ 0,00" readonly>
+        </div>
+        <div class="info-box">
+            <label for="optarDesagio">Advogado opta por deságio nos honorários?</label>
+            <div>
+                <input type="radio" id="desagioSim" name="optarDesagio" value="sim" onclick="atualizarOptarDesagio()"> Sim
+                <input type="radio" id="desagioNao" name="optarDesagio" value="nao" onclick="atualizarOptarDesagio()" checked> Não
+            </div>
+        </div>
+        <div id="desagioHonorarios" style="display:none">
+            <div class="info-box">
+                <label for="desagioSucumbenciais">Porcentagem de Deságio nos Honorários Sucumbenciais (%):</label>
+                <input type="range" id="desagioSucumbenciais" min="0" max="100" value="0" step="1" oninput="atualizarDesagioSucumbenciais()">
+                <output id="valorDesagioSucumbenciais">0%</output>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Resultados</h2>
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Valor Total para o Advogado (Sucumbências)</td>
+                    <td><span id="valorSucumbenciais" class="highlight">R$ 0,00</span></td>
+                </tr>
+                <tr>
+                    <td>Valor Total para o Cliente</td>
+                    <td><span id="valorCliente" class="highlight">R$ 0,00</span></td>
+                </tr>
+                <tr>
+                    <td>Deságio Final sobre o Crédito do Autor</td>
+                    <td><span id="desagioFinalAutor" class="highlight">0%</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <canvas id="grafico"></canvas>
+
+    <div class="color-legend">
+        <div>
+            <div style="width: 20px; height: 20px; background-color: #78c0e0; border-radius: 5px;"></div>
+            <span>Cliente</span>
+        </div>
+        <div>
+            <div style="width: 20px; height: 20px; background-color: #5065a1; border-radius: 5px;"></div>
+            <span>Sucumbenciais</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Penaforte Capital. Todas as propostas estão à revisão e aprovação final pelo fundo adquirente.</p>
+    </div>
+
+    <script>
+        const valorCreditoAtualizadoInput = document.getElementById("valorCreditoAtualizado");
+        const percentualDesagioCreditoInput = document.getElementById("percentualDesagioCredito");
+        const valorProcessoInput = document.getElementById("valorProcesso");
+        const percentualHonorariosSucumbenciaisInput = document.getElementById("percentualHonorariosSucumbenciais");
+        const valorSucumbenciaisCalculadoInput = document.getElementById("valorSucumbenciaisCalculado");
+        const valorSucumbenciaisOutput = document.getElementById("valorSucumbenciais");
+        const valorClienteOutput = document.getElementById("valorCliente");
+        const valorDesagioCreditoOutput = document.getElementById("valorDesagioCredito");
+        const desagioSucumbenciaisInput = document.getElementById("desagioSucumbenciais");
+        const valorDesagioSucumbenciaisOutput = document.getElementById("valorDesagioSucumbenciais");
+        const desagioHonorariosDiv = document.getElementById("desagioHonorarios");
+        const desagioFinalAutorOutput = document.getElementById("desagioFinalAutor");
+
+        let grafico;
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        function parseCurrency(value) {
+            return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+
+        function calcularDesagioFinal(valorCreditoAtualizado, valorCliente) {
+            const desagioFinal = ((valorCreditoAtualizado - valorCliente) / valorCreditoAtualizado) * 100;
+            return desagioFinal.toFixed(2);
+        }
+
+        function atualizarDesagioCredito() {
+            valorDesagioCreditoOutput.textContent = `${percentualDesagioCreditoInput.value}%`;
+            calcularValores();
+        }
+
+        function atualizarHonorariosSucumbenciais() {
+            document.getElementById("valorHonorariosSucumbenciais").textContent = `${percentualHonorariosSucumbenciaisInput.value}%`;
+            calcularValores();
+        }
+
+        function atualizarOptarDesagio() {
+            const optarDesagio = document.querySelector('input[name="optarDesagio"]:checked').value;
+            desagioHonorariosDiv.style.display = optarDesagio === "sim" ? "block" : "none";
+            calcularValores();
+        }
+
+        function atualizarDesagioSucumbenciais() {
+            valorDesagioSucumbenciaisOutput.textContent = `${desagioSucumbenciaisInput.value}%`;
+            calcularValores();
+        }
+
+        function calcularValores() {
+            const valorCreditoAtualizado = parseCurrency(valorCreditoAtualizadoInput.value);
+            const percentualDesagioCredito = parseFloat(percentualDesagioCreditoInput.value) || 0;
+            const percentualSucumbenciais = parseFloat(percentualHonorariosSucumbenciaisInput.value) || 0;
+
+            const aplicarDesagio = document.querySelector('input[name="optarDesagio"]:checked').value === "sim";
+            const desagioSucumbenciais = aplicarDesagio ? parseFloat(desagioSucumbenciaisInput.value) || 0 : 0;
+
+            const honorariosSucumbenciais = valorCreditoAtualizado * percentualSucumbenciais / 100;
+            const honorariosSucumbenciaisComDesagio = honorariosSucumbenciais * (1 - desagioSucumbenciais / 100);
+            valorSucumbenciaisCalculadoInput.value = formatCurrency(honorariosSucumbenciais);
+
+            const valorComDesagio = valorCreditoAtualizado * (1 - percentualDesagioCredito / 100);
+            valorProcessoInput.value = formatCurrency(valorComDesagio);
+
+            const valorCliente = valorComDesagio - honorariosSucumbenciaisComDesagio;
+            const desagioFinalAutor = calcularDesagioFinal(valorCreditoAtualizado, valorCliente);
+
+            valorSucumbenciaisOutput.textContent = formatCurrency(honorariosSucumbenciaisComDesagio);
+            valorClienteOutput.textContent = formatCurrency(valorCliente);
+            desagioFinalAutorOutput.textContent = `${desagioFinalAutor}%`;
+
+            atualizarGrafico(valorCliente, honorariosSucumbenciaisComDesagio);
+        }
+
+        function atualizarGrafico(valorCliente, honorariosSucumbenciais) {
+            const dados = [valorCliente, honorariosSucumbenciais];
+            const labels = ["Cliente", "Sucumbenciais"];
+
+            if (grafico) {
+                grafico.destroy();
+            }
+
+            grafico = new Chart(document.getElementById("grafico"), {
+                type: "doughnut",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dados,
+                        backgroundColor: ["#78c0e0", "#5065a1"],
+                        hoverBackgroundColor: ["#55a6c8", "#384c78"],
+                        borderWidth: 4,
+                        borderColor: "#ffffff",
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1, 
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: { color: "#333", font: { size: 16 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return `${context.label}: ${formatCurrency(context.raw)}`;
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+        }
+
+        valorCreditoAtualizadoInput.addEventListener("input", calcularValores);
+        percentualDesagioCreditoInput.addEventListener("input", atualizarDesagioCredito);
+        percentualHonorariosSucumbenciaisInput.addEventListener("input", atualizarHonorariosSucumbenciais);
+        desagioSucumbenciaisInput.addEventListener("input", atualizarDesagioSucumbenciais);
+
+        calcularValores();
+    </script>
+</body>
+</html>
